@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f6c25ca92658e746add87d4abe415fa, type: 3}
+  m_Name: QIEngineSettings
+  m_EditorClassIdentifier: 
+  InputType: 0
+  HololensProvider: 0
+  ViveProvider: 0
+  MaxZetaDistance: 1000
+  DistanceScale: 1
+  InputSensitivity: 1
+  WindingOrder: zxy
+  CustomPointer: {fileID: 0}
+  ShowEyeTracker: 0

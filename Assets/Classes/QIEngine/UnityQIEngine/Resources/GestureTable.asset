@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05b3ec9521234b74d9c467c339510abe, type: 3}
+  m_Name: GestureTable
+  m_EditorClassIdentifier: 
+  Gesture: 0
+  Poses:
+  - PoseName: Pinch
+    Gestures:
+    - Qualifier: 1
+      Handedness: 3
+      FirstJoint: 11
+      SecondJoint: 6
+      DistanceAcceptance: 0.03
+  - PoseName: Peace
+    Gestures:
+    - Qualifier: 0
+      Handedness: 3
+      FirstJoint: 11
+      SecondJoint: 16
+      DistanceAcceptance: 0.04
+    - Qualifier: 1
+      Handedness: 3
+      FirstJoint: 6
+      SecondJoint: 21
+      DistanceAcceptance: 0.03
+    - Qualifier: 1
+      Handedness: 3
+      FirstJoint: 26
+      SecondJoint: 21
+      DistanceAcceptance: 0.03
+  - PoseName: Point
+    Gestures:
+    - Qualifier: 0
+      Handedness: 3
+      FirstJoint: 11
+      SecondJoint: 6
+      DistanceAcceptance: 0.12
+    - Qualifier: 1
+      Handedness: 3
+      FirstJoint: 16
+      SecondJoint: 6
+      DistanceAcceptance: 0.8
