@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Metrics
 {
-    public RollingQueue<float> Confidence =   new RollingQueue<float>(180);
-    public RollingQueue<float> Distance   =   new RollingQueue<float>(180);
-    public RollingQueue<float> Angle      =   new RollingQueue<float>(180);
-    public RollingQueue<float> Magnitude  =   new RollingQueue<float>(180);
-    public RollingQueue<float> Velocity   =   new RollingQueue<float>(180);
+    public RollingQueue<double> Confidence =   new RollingQueue<double>(180);
+    public RollingQueue<double> Distance   =   new RollingQueue<double>(180);
+    public RollingQueue<double> Angle      =   new RollingQueue<double>(180);
+    public RollingQueue<double> Magnitude  =   new RollingQueue<double>(180);
+    public RollingQueue<double> Velocity   =   new RollingQueue<double>(180);
 }

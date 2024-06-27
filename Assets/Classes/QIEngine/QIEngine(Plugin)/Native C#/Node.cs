@@ -10,7 +10,7 @@ public class Node
     public Node Parent;
     public List<CalcContainer> LogicCalculations = new List<CalcContainer>();
     public List<Node> Children = new List<Node>();
-    public float Confidence;
+    public double Confidence;
     public bool ShouldCalculateConfidence;
 
     /**

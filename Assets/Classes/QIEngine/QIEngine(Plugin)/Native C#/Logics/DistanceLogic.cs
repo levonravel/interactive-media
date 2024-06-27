@@ -9,7 +9,7 @@ public class DistanceLogic : ILogic
         if (!node.ShouldCalculateConfidence) return;
 
         //TODO Increment more proportionally -Levon "Ask at next meeting for ideas"
-        float distance = node.Metrics.Distance.GetNewest() * weight;
+        double distance = node.Metrics.Distance.GetNewest() * weight;
 
         node.Confidence += distance >= weight ? weight : distance;
 

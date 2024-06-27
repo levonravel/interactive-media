@@ -43,7 +43,7 @@ public class GradientChange : BaseNodeInteraction
         gradient.SetKeys(colors, alphas);
         try
         {
-            CurrentColor = gradient.Evaluate(Node.Confidence);
+            CurrentColor = gradient.Evaluate((float)Node.Confidence);
 
             if (sprite != null)
             {

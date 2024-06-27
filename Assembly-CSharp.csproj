@@ -96,6 +96,7 @@
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Metrics\DirectionMetric.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Managers\StateHandler.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\Interactions\ScrollNode.cs" />
+    <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Utilities\Vector2Extensions.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\Interactions\MoveNode.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\GazeInputs\HololensGazeModule.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Logics\DistanceLogic.cs" />

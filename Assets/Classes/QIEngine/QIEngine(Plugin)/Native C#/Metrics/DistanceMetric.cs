@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Numerics;
 
 public class DistanceMetric : IMetric
 {
-    public void Calculate(Node node, Vector3 inputPosition)
+    public void Calculate(Node node, Vector2 inputPosition)
     {
-        float distance = QIMath.GetDistanceFromBounds(node, inputPosition);
+        double distance = QIMath.GetDistanceFromBounds(node, inputPosition);
         node.Metrics.Distance.Enqueue(distance);
     }
 }

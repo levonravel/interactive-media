@@ -1,7 +1,7 @@
 using QuantumInterface.QIEngine;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
-
+using System.Numerics;
 public class DirectionLogic : ILogic
 {
 
@@ -25,7 +25,7 @@ public class DirectionLogic : ILogic
         Vector2 last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
         Vector2 center = node.Configuration.Position;
 
-        float offset = Mathf.Atan(node.Configuration.Radius / Vector3.Distance(center, first));
+        double offset = Math.Atan(node.Configuration.Radius / Vector2.Distance(center, first));
 
         if (node.Configuration.Radius == 0)
         {
@@ -33,18 +33,18 @@ public class DirectionLogic : ILogic
         }
 
         // Adjust lenientOffset calculation to correctly include the 11-degree margin on both sides.
-        float lenientOffset = offset * elevenDegrees;
+        double lenientOffset = offset * elevenDegrees;
 
-        double theta = Mathf.Atan2(center.y - first.y, center.x - first.x);
-        double thetaToMouse = Mathf.Atan2(first.y - last.y, first.x - last.x);
+        double theta = Math.Atan2(center.Y - first.Y, center.X - first.X);
+        double thetaToMouse = Math.Atan2(first.Y - last.Y, first.X - last.X);
 
         // Check if thetaToMouse is within the lenientOffset from theta.
         bool lookingAt = thetaToMouse >= theta - lenientOffset && thetaToMouse <= theta + lenientOffset;
 
-        Vector3 AB = first - last;
-        Vector3 AC = first - center;
+        Vector2 AB = first - last;
+        Vector2 AC = first - center;
 
-        float direction = Vector3.Dot(AB, AC);
+        double direction = Vector2.Dot(AB, AC);
 
         //Debug.Log($"Input direction first {first} last {last} center {center} {direction}");
 
@@ -68,35 +68,35 @@ public class DirectionLogic : ILogic
     }
 
 
-    static float CalculateSquare2DOffset(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
+    static double CalculateSquare2DOffset(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
     {
         // Calculate the relative position of the gaze from the center of the rectangle
         Vector2 relativePos = gazePos - squareCenter;
 
-        Vector2 topEdgeDir = Vector3.Normalize(new Vector2(0, dimensions.y / 2.0f + squareCenter.y) - gazePos);
-        Vector2 bottomEdgeDir = Vector3.Normalize(new Vector2(0, -dimensions.y / 2.0f + squareCenter.y) - gazePos);
-        Vector2 leftEdgeDir = Vector3.Normalize(new Vector2(-dimensions.x / 2.0f + squareCenter.x, 0) - gazePos);
-        Vector2 rightEdgeDir = Vector3.Normalize(new Vector2(dimensions.x / 2.0f + squareCenter.x, 0) - gazePos);
+        Vector2 topEdgeDir = Vector2.Normalize(new Vector2(0, dimensions.Y / 2.0f + squareCenter.Y) - gazePos);
+        Vector2 bottomEdgeDir = Vector2.Normalize(new Vector2(0, -dimensions.Y / 2.0f + squareCenter.Y) - gazePos);
+        Vector2 leftEdgeDir = Vector2.Normalize(new Vector2(-dimensions.X / 2.0f + squareCenter.X, 0) - gazePos);
+        Vector2 rightEdgeDir = Vector2.Normalize(new Vector2(dimensions.X / 2.0f + squareCenter.X, 0) - gazePos);
 
-        float topAngle = Mathf.Acos(Vector3.Dot(topEdgeDir, Vector3.Normalize(relativePos)));
-        float bottomAngle = Mathf.Acos(Vector3.Dot(bottomEdgeDir, Vector3.Normalize(relativePos)));
-        float leftAngle = Mathf.Acos(Vector3.Dot(leftEdgeDir, Vector3.Normalize(relativePos)));
-        float rightAngle = Mathf.Acos(Vector3.Dot(rightEdgeDir, Vector3.Normalize(relativePos)));
+        double topAngle = Math.Acos(Vector2.Dot(topEdgeDir, Vector2.Normalize(relativePos)));
+        double bottomAngle = Math.Acos(Vector2.Dot(bottomEdgeDir, Vector2.Normalize(relativePos)));
+        double leftAngle = Math.Acos(Vector2.Dot(leftEdgeDir, Vector2.Normalize(relativePos)));
+        double rightAngle = Math.Acos(Vector2.Dot(rightEdgeDir, Vector2.Normalize(relativePos)));
 
-        float minAngle = Mathf.Min(topAngle, bottomAngle, leftAngle, rightAngle);
-        float distanceToNearestEdge;
+        double minAngle = Math.Min(Math.Min(topAngle, bottomAngle), Math.Min(leftAngle, rightAngle));
+        double distanceToNearestEdge;
 
         if (minAngle == topAngle || minAngle == bottomAngle)
         {
-            distanceToNearestEdge = dimensions.y / 2.0f;
+            distanceToNearestEdge = dimensions.Y / 2.0f;
         }
         else
         {
-            distanceToNearestEdge = dimensions.x / 2.0f;
+            distanceToNearestEdge = dimensions.X / 2.0f;
         }
 
-        float distanceToCenter = relativePos.magnitude;
-        float offset = Mathf.Atan(distanceToNearestEdge / distanceToCenter);
+        double distanceToCenter = relativePos.Magnitude();
+        double offset = Math.Atan(distanceToNearestEdge / distanceToCenter);
 
         return offset;
     }
@@ -106,27 +106,27 @@ public class DirectionLogic : ILogic
     static bool IsGazeInsideSquare2D(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
     {
         // Calculate the half dimensions of the rectangle
-        float halfWidth = dimensions.x / 2.0f;
-        float halfHeight = dimensions.y / 2.0f;
+        double halfWidth = dimensions.X / 2.0f;
+        double halfHeight = dimensions.Y / 2.0f;
 
         // Calculate the boundaries of the rectangle
-        float leftBoundary = squareCenter.x - halfWidth;
-        float rightBoundary = squareCenter.x + halfWidth;
-        float topBoundary = squareCenter.y + halfHeight;
-        float bottomBoundary = squareCenter.y - halfHeight;
+        double leftBoundary = squareCenter.X - halfWidth;
+        double rightBoundary = squareCenter.X + halfWidth;
+        double topBoundary = squareCenter.Y + halfHeight;
+        double bottomBoundary = squareCenter.Y - halfHeight;
 
         // Check if gazePos is inside the rectangle
-        if (gazePos.x > leftBoundary && gazePos.x < rightBoundary && gazePos.y > bottomBoundary && gazePos.y < topBoundary)
+        if (gazePos.X > leftBoundary && gazePos.X < rightBoundary && gazePos.Y > bottomBoundary && gazePos.Y < topBoundary)
         {
             return true; // inside the rectangle
         }
         return false; // outside the rectangle
     }
 
-    static bool IsInRadius(Vector3 nodePosition, Vector2 inputPosition, float radius)
+    static bool IsInRadius(Vector2 nodePosition, Vector2 inputPosition, float radius)
     {
-        double distanceSquared = (inputPosition.x - nodePosition.x) * (inputPosition.x - nodePosition.x) +
-            (inputPosition.y - nodePosition.y) * (inputPosition.y - nodePosition.y);
+        double distanceSquared = (inputPosition.X - nodePosition.X) * (inputPosition.X - nodePosition.X) +
+            (inputPosition.Y - nodePosition.Y) * (inputPosition.Y - nodePosition.Y);
         return distanceSquared <= radius * radius;
     }
 }

@@ -30,7 +30,7 @@ public class GrowInteraction : BaseNodeInteraction
     public void Update()
     {
         var scale = IsInverted == true ? Node.Confidence : 1 - Node.Confidence;
-        WantedGrowObject.transform.localScale = Vector3.Lerp(WantedGrowObject.transform.localScale, Size * scale, Time.deltaTime * DampenSpeed);
+        WantedGrowObject.transform.localScale = Vector3.Lerp(WantedGrowObject.transform.localScale, Size * (float)scale, Time.deltaTime * DampenSpeed);
     }
 
     public override void OnQIEngineUpdate()

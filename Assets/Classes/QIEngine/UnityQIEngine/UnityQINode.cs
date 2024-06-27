@@ -9,7 +9,8 @@ public class UnityQINode : MonoBehaviour
 
     [Tooltip("The last logic will do the final calculation")]
     public List<LogicTypeContainer> LogicTypes = new List<LogicTypeContainer>() { new LogicTypeContainer() { CalculationType = CalcType.Distance, Weight = 1 } };
-    public float SelectionThreshold = .9F, DeselectionThreshold = .89F, HoldOpenThreshold = .4F, ConfidenceCalculationRange, Confidence;
+    public float SelectionThreshold = .9F, DeselectionThreshold = .89F, HoldOpenThreshold = .4F, ConfidenceCalculationRange;
+    public double Confidence;
     public List<UnityQINode> Children = new List<UnityQINode>();
     private Vector3 position, priorPosition, priorCameraPosition, size, dimensions;
     private Quaternion priorRotation, priorCameraRotation;
@@ -182,7 +183,7 @@ public class UnityQINode : MonoBehaviour
         }
     }
 
-    public void OnConfidenceChanged(float confidence)
+    public void OnConfidenceChanged(double confidence)
     {
         Confidence = confidence;
         if (confidence > 1)

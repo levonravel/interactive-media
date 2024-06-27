@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class ConfidenceLine
 {
-    public float Angle;
-    public float Mag;
+    public double Angle;
+    public double Mag;
 }

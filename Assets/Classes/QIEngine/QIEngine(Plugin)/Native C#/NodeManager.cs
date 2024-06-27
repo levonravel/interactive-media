@@ -10,7 +10,7 @@ public class NodeManager
     Dictionary<CalcType, Action<Node, float, bool>> logicMapper = new Dictionary<CalcType, Action<Node, float, bool>>();
     List<Node> Collection = new List<Node>();
     Queue<int> ReusableIds = new Queue<int>();
-    Action<Node, Vector3> OnCalculateMetricData;
+    Action<Node, System.Numerics.Vector2> OnCalculateMetricData;
     bool shouldRunEngineCalculations = true;
 
     public void ResetEngine()
@@ -64,8 +64,8 @@ public class NodeManager
         newNode.Configuration.DeselectionThreshold = deselectionThreshold;
         newNode.Configuration.HoldOpenThreshold = holdOpenThreshold;
         newNode.Configuration.StartConfidenceDistance = startConfidenceDistance;
-        newNode.Configuration.Dimensions = dimensions;
-        newNode.Configuration.Position = position;
+        newNode.Configuration.Dimensions = new System.Numerics.Vector3(dimensions.x, dimensions.y, dimensions.z);
+        newNode.Configuration.Position = new System.Numerics.Vector2(position.x, position.y);
         newNode.Configuration.Radius = radius;
 
         AssignId(newNode);
@@ -177,7 +177,7 @@ public class NodeManager
      * @param id The id of the node to subscribe to the function.
      * @param onConfidenceChanged The address of the function to subscribe to.
      */
-    public void SubscribeConfidenceChange(int id, Action<float> onConfidenceChanged)
+    public void SubscribeConfidenceChange(int id, Action<double> onConfidenceChanged)
     {
         Collection[id].Notifications.OnConfidenceChanged += onConfidenceChanged;
     }
@@ -189,12 +189,12 @@ public class NodeManager
      */
     public void UpdateNodePosition(int id, Vector3 position)
     {
-        Collection[id].Configuration.Position = new Vector3(position.x, position.y, position.z);
+        Collection[id].Configuration.Position = new System.Numerics.Vector2(position.x, position.y);
     }
 
     public void UpdateNodeRotation(int id, Quaternion rotation)
     {
-        Collection[id].Configuration.Rotation = new Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
+        Collection[id].Configuration.Rotation = new System.Numerics.Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
     }
     /**
      * @brief Grow or shrink the node.
@@ -205,7 +205,7 @@ public class NodeManager
     {
         Node node = Collection[id];
         node.Configuration.Radius = radius;
-        node.Configuration.Dimensions = new Vector3(width, height, length);
+        node.Configuration.Dimensions = new System.Numerics.Vector3(width, height, length);
     }
 
     /**
@@ -214,8 +214,8 @@ public class NodeManager
      */
     void SetScreenSize(Vector3 screenSize)
     {
-        QIGlobalData.ScreenSize = new Rect(0.0f, 0.0f, screenSize.x, screenSize.y);
-        QIGlobalData.HeadGazePosition = new Vector3(screenSize.x / 2, screenSize.y / 2, 0);
+        QIGlobalData.ScreenSize = new System.Numerics.Vector2(screenSize.x, screenSize.y);
+        QIGlobalData.HeadGazePosition = new System.Numerics.Vector2(screenSize.x / 2, screenSize.y / 2);
     }
 
     /**
@@ -256,7 +256,7 @@ public class NodeManager
      * @param id The id of the node to get the confidence from.
      * @return The node's confidence.
      */
-    public float GetConfidence(int id)
+    public double GetConfidence(int id)
     {
         return Collection[id].Confidence;
     }
@@ -281,8 +281,8 @@ public class NodeManager
     public void SetEnvironmentVarible(float distanceScale, float screenWidth, float screenHeight, float aspectRation, float fieldOfView, string windingOrder, float maxZetaDistance)
     {
         QIGlobalData.DistanceScale = distanceScale;
-        QIGlobalData.ScreenSize.width = screenWidth;
-        QIGlobalData.ScreenSize.height = screenHeight;
+        QIGlobalData.ScreenSize.X = screenWidth;
+        QIGlobalData.ScreenSize.Y = screenHeight;
         QIGlobalData.AspectRatio = aspectRation;
         QIGlobalData.FieldOfView = fieldOfView;
         QIGlobalData.WindingOrder = windingOrder;
@@ -293,14 +293,14 @@ public class NodeManager
     {
         if(!shouldRunEngineCalculations) return;
 
-        Vector3 inputPosition = new Vector3(screenPosX, screenPosY, 0);
+        System.Numerics.Vector2 inputPosition = new System.Numerics.Vector2(screenPosX, screenPosY);
         
-        if (!QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest().Equals(new Vector3(screenPosX, screenPosY, 0)))
+        if (!QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest().Equals(new Vector2(screenPosX, screenPosY)))
         {
-            QIGlobalData.DuplicationFreeGazePositionSamples.Enqueue(new Vector3(screenPosX, screenPosY, 0));
+            QIGlobalData.DuplicationFreeGazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
         }
         
-        QIGlobalData.GazePositionSamples.Enqueue(new Vector3(screenPosX, screenPosY, 0));
+        QIGlobalData.GazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
 
         for(int i = Collection.Count - 1; i >= 0; i--)
         {
@@ -324,14 +324,14 @@ public class NodeManager
             //notify update
             node.Notifications.OnQIEngineUpdate?.Invoke();
 
-            if (float.IsNaN(node.Confidence))
+            if (double.IsNaN(node.Confidence))
             {
                 node.Confidence = 0;
                 continue;
             }
 
             //this might be greater than 1 sometimes. 
-            node.Confidence = Mathf.Clamp01(node.Confidence);
+            node.Confidence = Math.Clamp(node.Confidence, 0, 1);
 
             //notify the confidence change
             node.Notifications.OnConfidenceChanged?.Invoke(node.Confidence);

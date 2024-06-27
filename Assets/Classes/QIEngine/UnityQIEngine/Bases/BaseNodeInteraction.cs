@@ -11,7 +11,7 @@ public abstract class BaseNodeInteraction : MonoBehaviour
     [HideInInspector]
     public UnityQINode Node;
     [HideInInspector]public float RValue;
-    public float RValueModier = 0.1f;
+    public double RValueModier = 0.1f;
 
     public virtual void Start()
     {
@@ -34,11 +34,11 @@ public abstract class BaseNodeInteraction : MonoBehaviour
     {
         if (node == null)
         {
-            RValue = Mathf.Lerp(RValue, Node.Confidence, Time.deltaTime * RValueModier);
+            RValue = Mathf.Lerp(RValue, (float)Node.Confidence, Time.deltaTime * (float)RValueModier);
         }
         else 
         {
-            RValue = Mathf.Lerp(RValue, node.Confidence, Time.deltaTime * RValueModier);
+            RValue = Mathf.Lerp(RValue, (float)node.Confidence, Time.deltaTime *(float)RValueModier);
         }
     } 
     

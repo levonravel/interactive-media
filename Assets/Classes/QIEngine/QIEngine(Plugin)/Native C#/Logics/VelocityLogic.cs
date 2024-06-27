@@ -11,7 +11,7 @@ public class VelocityLogic : ILogic
     {
         if (!node.ShouldCalculateConfidence) return;
 
-        float velocity = node.Metrics.Velocity.GetNewest();
+        double velocity = node.Metrics.Velocity.GetNewest();
         node.Confidence *= velocity * weight;
 
         if (isStateRunner)

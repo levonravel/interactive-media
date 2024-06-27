@@ -1,9 +1,9 @@
 using QuantumInterface.QIEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Numerics;
 
 public interface IMetric
 {
-    public void Calculate(Node node, Vector3 inputPosition);
+    public void Calculate(Node node, Vector2 inputPosition);
 }

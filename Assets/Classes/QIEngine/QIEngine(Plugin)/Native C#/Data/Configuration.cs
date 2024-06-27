@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Numerics;
 
 public class Configuration
 {
     public Vector3 Dimensions;
-    private Vector3 position;
-    public Vector3 LastPosition;
+    private Vector2 position;
+    public Vector2 LastPosition;
     public Quaternion Rotation;
     public float Radius;//in pixles
     public float SelectionThreshold;
@@ -15,7 +15,7 @@ public class Configuration
     public float StartConfidenceDistance;
     private int sampleCount;
 
-    public Vector3 Position
+    public Vector2 Position
     {
         get
         {
@@ -37,7 +37,7 @@ public class Configuration
 
     public void ResetPositions()
     {
-        LastPosition = Vector3.zero;
-        position = Vector3.zero;
+        LastPosition = Vector2.Zero;
+        position = Vector2.Zero;
     }
 }

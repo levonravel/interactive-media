@@ -73,7 +73,7 @@ namespace QuantumInterface.QIEngine
             NodeManager.ForceDeselection();
         }
         
-        private static void SubscribeCallbacks(int id, Action<float> confidenceCallback, Action qiEngineUpdateCallback, Action selectionCallback, Action deselectionCallback)
+        private static void SubscribeCallbacks(int id, Action<double> confidenceCallback, Action qiEngineUpdateCallback, Action selectionCallback, Action deselectionCallback)
         {
             NodeManager.SubscribeDeselected(id, deselectionCallback);
             NodeManager.SubscribeConfidenceChange(id, confidenceCallback);
@@ -123,7 +123,7 @@ namespace QuantumInterface.QIEngine
         }
         */
 
-        public static void SubscribeToCallbacks(int id, Action<float> confidenceCallback, Action qiEngineUpdateCallback, Action selectionCallback, Action deselectionCallback)
+        public static void SubscribeToCallbacks(int id, Action<double> confidenceCallback, Action qiEngineUpdateCallback, Action selectionCallback, Action deselectionCallback)
         {
             SubscribeCallbacks(id, confidenceCallback, qiEngineUpdateCallback, selectionCallback, deselectionCallback);
         }
