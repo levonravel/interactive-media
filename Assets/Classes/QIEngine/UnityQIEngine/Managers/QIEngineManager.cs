@@ -24,11 +24,6 @@ public class QIEngineManager : MonoBehaviour
             if(instance == null)
             {
                 instance = FindObjectOfType<QIEngineManager>();
-                if (instance == null)
-                {
-                    instance = new GameObject().AddComponent<QIEngineManager>();
-                    instance.gameObject.name = "QIManager";
-                }
             }
             return instance;
         }

@@ -1,6 +1,7 @@
 using QuantumInterface.QIEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class UnityQINode : MonoBehaviour
@@ -21,6 +22,13 @@ public class UnityQINode : MonoBehaviour
 
     public void Start()
     {
+        if(QIEngineManager.Instance == null)
+        {
+            Debug.LogError("You do not have a QIEnineManager in the scene");
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#endif
+        }
         if (Id == -1)
             Register(-1);
     }

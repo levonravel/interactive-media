@@ -1,47 +1,40 @@
 using UnityEngine;
 
-[AddComponentMenu("Quantumation/ShowSelection")]
-public class ShowSelection : BaseNodeInteraction
+[AddComponentMenu("Quantumation/ShowChildren")]
+public class ShowChildren : BaseNodeInteraction
 {
-    public GameObject Selection;
-    public bool UseAsToggle;
-    public GameObject[] DeSelect;   // RPM added to act like a ToggleGroup
-
     public override void Start()
     {
         base.Start();
-
-        if (Selection.gameObject.activeSelf) Selection.gameObject.SetActive(false);
+        ActivateChildren(false);
     }
 
-    public override void OnQIEngineUpdate()
-    {
-        // TODO: figure out why this isn't firing... or should quantimation be on the front end only?
-    }
 
     public override void OnDeselected()
     {
-        if (Selection == null) return;
-        if (UseAsToggle) return;
-        if (Selection.gameObject.activeSelf) Selection.gameObject.SetActive(false);
+        ActivateChildren(false);
     }
+
 
     public override void OnSelected()
     {
-        if (Selection == null) return;
+        ActivateChildren(true);
+    }
 
-        if (UseAsToggle)
+
+    private void ActivateChildren(bool a)
+    {
+        if (Node.Children.Count == 0)
+            return;
+
+        foreach (var child in Node.Children)
         {
-            Selection.gameObject.SetActive(!Selection.gameObject.activeSelf);
-            // RPM Turn off and DeSelect objects
-            foreach (GameObject go in DeSelect)
-            {
-                go.SetActive(false);
-            }
+            child.gameObject.SetActive(a);
         }
-        else
-        {
-            if (!Selection.gameObject.activeSelf) Selection.gameObject.SetActive(true);
-        }
+    }
+
+
+    public override void OnQIEngineUpdate()
+    {
     }
 }
