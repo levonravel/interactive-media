@@ -5,33 +5,18 @@ using UnityEngine;
 
 public class UnityQINode : MonoBehaviour
 {
-    public bool ShowPositionDebug;
-    public int Id = -1;
-    public float Confidence;
+    [HideInInspector]public int Id = -1;
 
     [Tooltip("The last logic will do the final calculation")]
     public List<LogicTypeContainer> LogicTypes = new List<LogicTypeContainer>() { new LogicTypeContainer() { CalculationType = CalcType.Distance, Weight = 1 } };
-    public float SelectionThreshold = .9F;
-    public float DeselectionThreshold = .89F;
-    public float HoldOpenThreshold = .4F;
-    public float ConfidenceCalculationRange;
-    public Vector3 dimensions = Vector3.zero;
-    public bool isConfirmationNode;
+    public float SelectionThreshold = .9F, DeselectionThreshold = .89F, HoldOpenThreshold = .4F, ConfidenceCalculationRange, Confidence;
     public List<UnityQINode> Children = new List<UnityQINode>();
-    public bool IsRadial = true;
-    public bool SkipChildCheck;
-
-    private Vector3 position = Vector3.zero;
-    private Vector3 priorPosition;
-    private Quaternion priorRotation;
-    private Vector3 priorCameraPosition;
-    private Quaternion priorCameraRotation;
-    public float radius = 10f;
-    private MeshRenderer meshRenderer;
-    private RectTransform rectTransform;
-    private bool isReady;
-    private BoxCollider collider;
-    private bool isVisible;
+    private Vector3 position, priorPosition, priorCameraPosition, size, dimensions;
+    private Quaternion priorRotation, priorCameraRotation;
+    private float radius = 10f;
+    private bool isReady, isRadial;
+    private Collider collider;
+    private Collider2D collider2D;
 
     public void Start()
     {
@@ -39,64 +24,52 @@ public class UnityQINode : MonoBehaviour
             Register(-1);
     }
 
-    public void Update()
+    void SetUpCollider()
     {
-        if (!isReady) return;
+        size = transform.localScale;
+        collider = GetComponent<Collider>();
+        collider2D = GetComponent<Collider2D>();
 
-        if (!IsPositionVisible(QIEngineManager.Instance.Camera, transform.position))
+        if (collider != null)
         {
-            if (isVisible)
-            {
-                QIEngineInterpreter.SetConfidenceUpdates(Id, false);
-                isVisible = false;
-            }
-            return;
+            isRadial = collider is SphereCollider;
         }
-
-        if (!isVisible)
+        if (collider2D != null)
         {
-            QIEngineInterpreter.SetConfidenceUpdates(Id, true);
-            isVisible = true;
+            isRadial = collider2D is CircleCollider2D;
         }
+    }
 
-        //check if the object moved
-        if (transform.position != priorPosition || transform.rotation != priorRotation || QIEngineManager.Instance.Camera.transform.position != priorCameraPosition || QIEngineManager.Instance.Camera.transform.rotation != priorCameraRotation)
-        {
-            priorPosition = transform.position;
-            priorRotation = transform.rotation;
-            priorCameraPosition = QIEngineManager.Instance.Camera.transform.position;
-            priorCameraRotation = QIEngineManager.Instance.Camera.transform.rotation;
+    void Update()
+    {
+        if (!isReady || !HasTransformChanged() || IsPositionVisible()) return;
 
-            //do not adjust will crash the api
-            SetPixelSize();
-            QIEngineInterpreter.UpdateNodeDimensions(Id, dimensions.x, dimensions.y, 0, radius);
-            QIEngineInterpreter.UpdateNodeOrientation(Id, position.x, position.y, 0, transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
-        }
+        priorPosition = transform.position;
+        priorRotation = transform.rotation;
+        priorCameraPosition = QIEngineManager.Instance.Camera.transform.position;
+        priorCameraRotation = QIEngineManager.Instance.Camera.transform.rotation;
+
         SetPixelSize();
         QIEngineInterpreter.UpdateNodeDimensions(Id, dimensions.x, dimensions.y, 0, radius);
         QIEngineInterpreter.UpdateNodeOrientation(Id, position.x, position.y, 0, transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
-    }
-
-    public void OnEnable()
-    {
-        if (Id == -1) return;
         QIEngineInterpreter.SetConfidenceUpdates(Id, true);
     }
 
-    public void OnDisable()
+    bool HasTransformChanged()
     {
-        if (Id == -1) return;
-        QIEngineInterpreter.SetConfidenceUpdates(Id, false);
+        return transform.position != priorPosition || transform.rotation != priorRotation ||
+               QIEngineManager.Instance.Camera.transform.position != priorCameraPosition ||
+               QIEngineManager.Instance.Camera.transform.rotation != priorCameraRotation ||
+               size != transform.localScale;
     }
 
     public void Register(int parentId)
     {
-        GetColliderType();
+        SetUpCollider();        
         SetPixelSize();
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            if (SkipChildCheck) continue;
             if (transform.GetChild(i).GetComponent<UnityQINode>() != null)
             {
                 var childNode = transform.GetChild(i).GetComponent<UnityQINode>();
@@ -106,7 +79,7 @@ public class UnityQINode : MonoBehaviour
 
         //register this parent
         var rotation = transform.eulerAngles;
-        Id = QIEngineInterpreter.CreateNode(SelectionThreshold, DeselectionThreshold, HoldOpenThreshold, ConfidenceCalculationRange, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, dimensions.x, dimensions.y, 0, IsRadial ? radius : 0);
+        Id = QIEngineInterpreter.CreateNode(SelectionThreshold, DeselectionThreshold, HoldOpenThreshold, ConfidenceCalculationRange, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, dimensions.x, dimensions.y, 0, isRadial ? radius : 0);
 
         if (parentId != -1)
         {
@@ -121,30 +94,6 @@ public class UnityQINode : MonoBehaviour
             {
                 child.Register(Id);
             }
-        }
-    }
-
-    public void GetColliderType()
-    {
-        if (IsRadial)
-        {
-            position = GetPosition(gameObject.transform.position);
-        }
-        else if (collider = GetComponent<BoxCollider>())
-        {
-            position = GetPosition(collider.center);
-        }
-        else if (meshRenderer = GetComponent<MeshRenderer>())
-        {
-            position = GetPosition(meshRenderer.bounds.center);
-        }
-        else if (rectTransform = GetComponent<RectTransform>())
-        {
-            position = GetPosition(rectTransform.rect.center);
-        }
-        else
-        {
-            position = GetPosition(gameObject.transform.position);
         }
     }
 
@@ -173,18 +122,33 @@ public class UnityQINode : MonoBehaviour
 
     public void SetPixelSize()
     {
-        if (IsRadial)
-        {       
-            var sphereCollider = GetComponent<SphereCollider>();
-            position = GetPosition(gameObject.transform.position);
-            Vector3 center = sphereCollider.bounds.center;
-            radius = sphereCollider.bounds.size.x / 2;
-            Vector2 centerPixel = Camera.main.WorldToScreenPoint(center);
-            Vector2 edgePixel = Camera.main.WorldToScreenPoint(center + Vector3.right * radius);
-            radius = (edgePixel - centerPixel).magnitude;
-        }
-        else if (collider)
+        if (isRadial)
         {
+            if (collider2D == null)
+            {
+                Vector3 center = collider.bounds.center;
+                radius = collider.bounds.size.x / 2;
+                Vector2 centerPixel = Camera.main.WorldToScreenPoint(center);
+                Vector2 edgePixel = Camera.main.WorldToScreenPoint(center + Vector3.right * radius);
+                radius = (edgePixel - centerPixel).magnitude;
+                position = QIEngineManager.Instance.Camera.WorldToScreenPoint(collider.bounds.center);
+            }
+            else
+            {
+                position = collider2D.bounds.center;
+                radius = ((CircleCollider2D)collider2D).radius;
+            }
+        }
+        else
+        {
+            if(collider2D != null)
+            {
+                dimensions = new Vector3(((BoxCollider2D) collider2D).size.x, ((BoxCollider2D)collider2D).size.y);
+                position = collider2D.bounds.center;
+                radius = 0;
+                return;
+            }
+
             Bounds bounds = collider.bounds;
 
             Vector3[] vertices = new Vector3[8];
@@ -216,26 +180,6 @@ public class UnityQINode : MonoBehaviour
             position = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, 0);
             radius = 0;
         }
-        else if (meshRenderer)
-        {
-            position = GetPosition(meshRenderer.bounds.center);
-        }
-        else if (rectTransform)
-        {
-            position = GetPosition(rectTransform.rect.center);
-            dimensions = new Vector3(rectTransform.rect.width, rectTransform.rect.height);
-            radius = rectTransform.rect.width / 2;
-        }
-        else
-        {
-            position = GetPosition(gameObject.transform.position);
-            dimensions = new Vector3(10, 10);
-        }
-    }
-
-    private Vector3 GetPosition(Vector3 position)
-    {
-        return QIEngineManager.Instance.Camera.WorldToScreenPoint(position);
     }
 
     public void OnConfidenceChanged(float confidence)
@@ -247,22 +191,22 @@ public class UnityQINode : MonoBehaviour
         }
     }
 
-    bool IsPositionVisible(Camera camera, Vector3 position)
+    bool IsPositionVisible()
     {
-        Vector3 viewportPoint = camera.WorldToViewportPoint(position);
-        return viewportPoint.x >= 0 && viewportPoint.x <= 1 &&
-               viewportPoint.y >= 0 && viewportPoint.y <= 1 &&
-               viewportPoint.z > 0;
+        Vector3 viewportPoint = QIEngineManager.Instance.Camera.WorldToScreenPoint(transform.position);
+        return viewportPoint.x >= 0 && viewportPoint.x <= 1 && viewportPoint.y >= 0 && viewportPoint.y <= 1 && viewportPoint.z > 0;
     }
 
-    public bool AnyChildrenSelected()
+    public void OnEnable()
     {
-        foreach (UnityQINode child in Children)
-        {
-            if (child.Confidence >= child.SelectionThreshold) return true;
-        }
+        if (Id == -1) return;
+        QIEngineInterpreter.SetConfidenceUpdates(Id, true);
+    }
 
-        return false;
+    public void OnDisable()
+    {
+        if (Id == -1) return;
+        QIEngineInterpreter.SetConfidenceUpdates(Id, false);
     }
 
     public void OnDestroy()

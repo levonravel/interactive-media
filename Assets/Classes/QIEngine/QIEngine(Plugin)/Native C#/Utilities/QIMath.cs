@@ -8,7 +8,7 @@ public static class QIMath
     public static float GetDistanceFromBounds(Node node, Vector3 inputPosition)
     {
         float distance = Vector3.Distance(node.Configuration.Position, inputPosition);
-        float maxDistance = node.Configuration.StartConfidenceDistance == 0 ? 200 : node.Configuration.StartConfidenceDistance;
+        float maxDistance = node.Configuration.StartConfidenceDistance == 0 ? 1080 : node.Configuration.StartConfidenceDistance;
 
         if (node.Configuration.Radius > 0)
         {
