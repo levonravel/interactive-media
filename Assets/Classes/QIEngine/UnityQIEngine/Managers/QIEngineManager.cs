@@ -71,7 +71,7 @@ public class QIEngineManager : MonoBehaviour
         //Reset the QIEngine just incase of scene changes
         QIEngineInterpreter.ResetEngine();
 
-        SceneNodes = FindObjectsOfType<UnityQINode>();
+        SceneNodes = FindObjectsOfType<UnityQINode>(true);
 
         foreach(var node in SceneNodes)
         {
