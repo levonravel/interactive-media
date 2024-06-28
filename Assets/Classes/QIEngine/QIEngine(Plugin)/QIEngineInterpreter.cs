@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace QuantumInterface.QIEngine
@@ -44,8 +45,8 @@ namespace QuantumInterface.QIEngine
 
         public static void UpdateNodeOrientation(int id, float positionX, float positionY, float positionZ, float rotationX, float rotationY, float rotationZ)
         {
-            NodeManager.UpdateNodePosition(id, new UnityEngine.Vector3(positionX, positionY));
-            NodeManager.UpdateNodeRotation(id, new UnityEngine.Quaternion(rotationX, rotationY, rotationZ, 0));
+            NodeManager.UpdateNodePosition(id, new Vector3(positionX, positionY, 0));
+            NodeManager.UpdateNodeRotation(id, new Quaternion(rotationX, rotationY, rotationZ, 0));
         }
 
         public static void SetConfidenceUpdates(int id, bool shouldCalculate)
@@ -107,9 +108,9 @@ namespace QuantumInterface.QIEngine
                 deselectionThreshold, 
                 holdOpenThreshold, 
                 startConfidenceDistance,
-                new UnityEngine.Vector3(dimX, dimY, dimZ),
-                new UnityEngine.Vector3(posX, posY, posZ), 
-                new UnityEngine.Quaternion(rotX, rotY, rotZ,0),
+                new Vector3(dimX, dimY, dimZ),
+                new Vector3(posX, posY, posZ), 
+                new Quaternion(rotX, rotY, rotZ,0),
                 radius);
         }
 
