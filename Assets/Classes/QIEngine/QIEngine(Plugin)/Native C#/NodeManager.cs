@@ -2,8 +2,8 @@ using QuantumInterface.QIEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
-using UnityEngine;
 
 public class NodeManager
 {
@@ -64,8 +64,8 @@ public class NodeManager
         newNode.Configuration.DeselectionThreshold = deselectionThreshold;
         newNode.Configuration.HoldOpenThreshold = holdOpenThreshold;
         newNode.Configuration.StartConfidenceDistance = startConfidenceDistance;
-        newNode.Configuration.Dimensions = new System.Numerics.Vector3(dimensions.x, dimensions.y, dimensions.z);
-        newNode.Configuration.Position = new System.Numerics.Vector2(position.x, position.y);
+        newNode.Configuration.Dimensions = new System.Numerics.Vector3(dimensions.X, dimensions.Y, dimensions.Z);
+        newNode.Configuration.Position = new System.Numerics.Vector2(position.X, position.Y);
         newNode.Configuration.Radius = radius;
 
         AssignId(newNode);
@@ -189,12 +189,12 @@ public class NodeManager
      */
     public void UpdateNodePosition(int id, Vector3 position)
     {
-        Collection[id].Configuration.Position = new System.Numerics.Vector2(position.x, position.y);
+        Collection[id].Configuration.Position = new System.Numerics.Vector2(position.X, position.Y);
     }
 
     public void UpdateNodeRotation(int id, Quaternion rotation)
     {
-        Collection[id].Configuration.Rotation = new System.Numerics.Quaternion(rotation.w, rotation.x, rotation.y, rotation.z);
+        Collection[id].Configuration.Rotation = new System.Numerics.Quaternion(rotation.W, rotation.X, rotation.Y, rotation.Z);
     }
     /**
      * @brief Grow or shrink the node.
@@ -214,8 +214,8 @@ public class NodeManager
      */
     void SetScreenSize(Vector3 screenSize)
     {
-        QIGlobalData.ScreenSize = new System.Numerics.Vector2(screenSize.x, screenSize.y);
-        QIGlobalData.HeadGazePosition = new System.Numerics.Vector2(screenSize.x / 2, screenSize.y / 2);
+        QIGlobalData.ScreenSize = new System.Numerics.Vector2(screenSize.X, screenSize.Y);
+        QIGlobalData.HeadGazePosition = new System.Numerics.Vector2(screenSize.X / 2, screenSize.Y / 2);
     }
 
     /**

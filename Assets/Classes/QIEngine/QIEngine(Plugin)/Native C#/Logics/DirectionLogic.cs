@@ -15,8 +15,8 @@ public class DirectionLogic : ILogic
  * @param isStateRunner Whether or not this confidence logic is the final decider in the confidence
  * calculation
  */
-    private float elevenDegrees = 0.191986f;
-
+    private float coneAngle = 45;
+    private float coneLength = 5f;
     public CalcType CalcType => CalcType.Direction;
 
     public void Calculate(Node node, float weight, bool isStateRunner)
@@ -25,29 +25,21 @@ public class DirectionLogic : ILogic
         Vector2 last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
         Vector2 center = node.Configuration.Position;
 
-        double offset = Math.Atan(node.Configuration.Radius / Vector2.Distance(center, first));
+        Vector2 direction = (first - last).Normalize();
+        float angleToCircle = Vector2Extensions.Angle(direction, (center - first).Normalize());
 
-        if (node.Configuration.Radius == 0)
+        if (angleToCircle > coneAngle / 2)
         {
-            offset = CalculateSquare2DOffset(node.Configuration.Position, first, node.Configuration.Dimensions);
+            node.Confidence = 0f; // Circle is outside the cone angle
         }
 
-        // Adjust lenientOffset calculation to correctly include the 11-degree margin on both sides.
-        double lenientOffset = offset * elevenDegrees;
+        float distanceToCircle = Vector2.Distance(first, center);
+        double intersectionArea = CalculateCircleSegmentArea(distanceToCircle, node.Configuration.Radius, coneAngle);
+        double maxCircleArea = Math.PI * node.Configuration.Radius * node.Configuration.Radius;
 
-        double theta = Math.Atan2(center.Y - first.Y, center.X - first.X);
-        double thetaToMouse = Math.Atan2(first.Y - last.Y, first.X - last.X);
+        node.Confidence = (float)Math.Min(1, intersectionArea / maxCircleArea);
 
-        // Check if thetaToMouse is within the lenientOffset from theta.
-        bool lookingAt = thetaToMouse >= theta - lenientOffset && thetaToMouse <= theta + lenientOffset;
-
-        Vector2 AB = first - last;
-        Vector2 AC = first - center;
-
-        double direction = Vector2.Dot(AB, AC);
-
-        //Debug.Log($"Input direction first {first} last {last} center {center} {direction}");
-
+        /*
         if (IsGazeInsideSquare2D(node.Configuration.Position, first, node.Configuration.Dimensions) && node.Configuration.Radius == 0)
         {
             node.Confidence = 1;
@@ -58,15 +50,25 @@ public class DirectionLogic : ILogic
         }
         else
         {
-            node.Confidence += (direction >= weight ? weight : direction) * (lookingAt ? 1 : 0);
+            //node.Confidence += (direction >= weight ? weight : direction) * (lookingAt ? 1 : 0);
         }
+        */
 
         if (isStateRunner)
         {
             StateHandler.SwitchState(node);
         }
+        
     }
 
+    public static double CalculateCircleSegmentArea(float distance, float radius, float angle)
+    {
+        double theta = 2 * Math.Acos(distance / radius);
+        double segmentArea = 0.5f * radius * radius * (theta - Math.Sin(theta));
+        double coneSectorArea = 0.5f * angle * (distance * distance);
+
+        return Math.Min(segmentArea, coneSectorArea);
+    }
 
     static double CalculateSquare2DOffset(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
     {
