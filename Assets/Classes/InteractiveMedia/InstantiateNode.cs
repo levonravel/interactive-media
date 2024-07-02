@@ -14,6 +14,10 @@ public class InstantiateNode : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+
+            var result = Physics2D.Raycast((Vector2)Input.mousePosition, Vector2.down);            
+            if (result.collider != null && result.collider.tag.ToString() == ("ContentHighlight")) return;
+
             var position = Input.mousePosition;
             BaseNode.transform.position = position;
             BaseNode.SetActive(true);
