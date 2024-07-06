@@ -10,6 +10,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     public GameObject ResizeHandle;
     public GameObject MoveHandle;
     public GameObject DeleteHighlightButton;
+    public BoxCollider2D HighlightCollider;
         
     private RectTransform rectTransform;
     private Image highlightImage;
@@ -19,6 +20,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     private bool isSelected = false;
 
     private Vector2 originalSize;
+    private Vector2 originalHighlightSize;
     private Vector2 originalPosition;
     private Vector2 originalMousePosition;
 
@@ -29,7 +31,8 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        highlightImage = GetComponent<Image>();        
+        highlightImage = GetComponent<Image>();
+        HighlightCollider = gameObject.GetComponent<BoxCollider2D>();
         
         highlightImage.color = DeselectedColor; // Initialize the highlight with deselectedColor.        
     }
@@ -70,6 +73,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
         {
             isResizing = true;
             originalSize = rectTransform.sizeDelta;
+            originalHighlightSize = HighlightCollider.size;
             originalMousePosition = eventData.position;
         }
         else if(eventData.pointerEnter == MoveHandle.gameObject && isSelected)
@@ -102,6 +106,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
             Vector2 currentMousePosition = eventData.position;
             Vector2 sizeDelta = currentMousePosition - originalMousePosition;
             rectTransform.sizeDelta = originalSize + new Vector2(sizeDelta.x, -sizeDelta.y);
+            HighlightCollider.size = originalHighlightSize + new Vector2(sizeDelta.x, -sizeDelta.y);
         }
 
         // Drag to move.

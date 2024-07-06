@@ -21,7 +21,7 @@ public class InstantiateNode : MonoBehaviour
             var position = Input.mousePosition;
             BaseNode.transform.position = position;
             BaseNode.SetActive(true);
-        }
+        } 
 
         if (Input.GetMouseButtonUp(0))
         {
