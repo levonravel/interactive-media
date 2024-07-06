@@ -6,11 +6,15 @@ using UnityEngine.UI;
 
 public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler
 {
+    // Minimum scale constraint:
+    public float MinScaleConstraint = 100f;
+
     // Highlight modifier components.
     public GameObject ResizeHandle;
     public GameObject MoveHandle;
     public GameObject DeleteHighlightButton;
-    public BoxCollider2D HighlightCollider;
+
+    private BoxCollider2D HighlightCollider;
         
     private RectTransform rectTransform;
     private Image highlightImage;
@@ -105,7 +109,13 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
         {
             Vector2 currentMousePosition = eventData.position;
             Vector2 sizeDelta = currentMousePosition - originalMousePosition;
-            rectTransform.sizeDelta = originalSize + new Vector2(sizeDelta.x, -sizeDelta.y);
+            Vector2 newSize = originalSize + new Vector2(sizeDelta.x, -sizeDelta.y);
+
+            // Check the minimum value constraint:
+            newSize.x = Mathf.Max(newSize.x, MinScaleConstraint);
+            newSize.y = Mathf.Max(newSize.y, MinScaleConstraint);
+
+            rectTransform.sizeDelta = newSize;
             HighlightCollider.size = originalHighlightSize + new Vector2(sizeDelta.x, -sizeDelta.y);
         }
 
