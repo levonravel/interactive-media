@@ -13,6 +13,8 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     public GameObject ResizeHandle;
     public GameObject MoveHandle;
     public GameObject DeleteHighlightButton;
+    public GameObject EditModeButton;
+    public GameObject AddContentButton;
 
     private BoxCollider2D HighlightCollider;
         
@@ -56,8 +58,8 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
 
             bool clickedOutside = true;
             foreach (RaycastResult result in raycastResults)
-            {
-                if (result.gameObject == gameObject || result.gameObject == ResizeHandle.gameObject)
+            {              
+                if (result.gameObject == gameObject || result.gameObject == ResizeHandle.gameObject || result.gameObject.CompareTag("ContentHighlight"))
                 {
                     clickedOutside = false;
                     break;
@@ -139,18 +141,25 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     {
         isSelected = false;
         ToggleModifiers(false);
+        ToggleEditMode(false);
         highlightImage.color = DeselectedColor;       
     }
 
     private void ToggleModifiers(bool toggle)
     {
         DeleteHighlightButton.SetActive(toggle);
+        EditModeButton.SetActive(toggle);
+        AddContentButton.SetActive(toggle);
+    }
+
+    public void ToggleEditMode(bool toggle)
+    {
         ResizeHandle.SetActive(toggle);
-        MoveHandle.SetActive(toggle);        
+        MoveHandle.SetActive(toggle);
     }
 
     public void DeleteHighlight()
     {        
-        Destroy(this.gameObject);
+        Destroy(this.gameObject);        
     }
 }
