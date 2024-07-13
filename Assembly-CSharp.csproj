@@ -111,11 +111,13 @@
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Logics\GazeDirectionLogic.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Data\Configuration.cs" />
     <Compile Include="Assets\Classes\InteractiveMedia\HighlightManager.cs" />
+    <Compile Include="Assets\Classes\InteractiveMedia\ToggleHighlightShape.cs" />
     <Compile Include="Assets\Classes\InteractiveMedia\InstantiateNode.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\NodeManager.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\QIEngineInterpreter.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\Bases\BaseNodeInteraction.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\LogicTypeContainer.cs" />
+    <Compile Include="Assets\Classes\InteractiveMedia\RadialArcPosition.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\QIEngineSettings.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\Interactions\QINotifier.cs" />
   </ItemGroup>

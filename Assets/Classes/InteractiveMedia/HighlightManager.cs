@@ -13,7 +13,8 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     public GameObject ResizeHandle;
     public GameObject MoveHandle;
     public GameObject DeleteHighlightButton;
-    public GameObject EditModeButton;
+    public GameObject ShapeToggleButtons;
+    public GameObject EditModeButton;    
     public GameObject AddContentButton;
 
     private BoxCollider2D HighlightCollider;
@@ -74,7 +75,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     }
 
     public void OnPointerDown(PointerEventData eventData)
-    {
+    {        
         if (eventData.pointerEnter == ResizeHandle.gameObject && isSelected)
         {
             isResizing = true;
@@ -146,8 +147,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     }
 
     private void ToggleModifiers(bool toggle)
-    {
-        DeleteHighlightButton.SetActive(toggle);
+    {        
         EditModeButton.SetActive(toggle);
         AddContentButton.SetActive(toggle);
     }
@@ -156,6 +156,8 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     {
         ResizeHandle.SetActive(toggle);
         MoveHandle.SetActive(toggle);
+        DeleteHighlightButton.SetActive(toggle);
+        ShapeToggleButtons.SetActive(toggle);
     }
 
     public void DeleteHighlight()
