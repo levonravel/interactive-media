@@ -14,6 +14,9 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     public GameObject MoveHandle;
     public GameObject DeleteHighlightButton;
     public GameObject ShapeToggleButtons;
+
+    // Highlight components.
+    public GameObject HighlightContent;
     public GameObject EditModeButton;    
     public GameObject AddContentButton;
 
@@ -133,24 +136,18 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
 
     private void Select()
     {
-        isSelected = true;
-        ToggleModifiers(true);
+        isSelected = true;       
+        ShowImmediateChildren(HighlightContent);
         highlightImage.color = SelectedColor;        
     }
 
     private void Deselect()
     {
-        isSelected = false;
-        ToggleModifiers(false);
+        isSelected = false;        
         ToggleEditMode(false);
-        HideChildren(AddContentButton);
+        HideImmediateChildren(AddContentButton);
+        HideImmediateChildren(HighlightContent);
         highlightImage.color = DeselectedColor;       
-    }
-
-    private void ToggleModifiers(bool toggle)
-    {        
-        EditModeButton.SetActive(toggle);
-        AddContentButton.SetActive(toggle);
     }
 
     public void ToggleEditMode(bool toggle)
@@ -166,24 +163,37 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
         Destroy(this.gameObject);        
     }
 
-    public void ShowChildren(GameObject parent)
+    public void ShowAllChildren(GameObject parent)
     {
         foreach (Transform child in parent.transform)
         {
             child.gameObject.SetActive(true);
-            // Recursive call if the child has its own children
-            ShowChildren(child.gameObject);
+            ShowAllChildren(child.gameObject);
         }
     }
 
-    public void HideChildren(GameObject parent)
+    public void HideAllChildren(GameObject parent)
     {
-        // Combine with above function and add a bool toggle..?
         foreach (Transform child in parent.transform)
         {
             child.gameObject.SetActive(false);
-            // Recursive call if the child has its own children
-            HideChildren(child.gameObject);
+            HideAllChildren(child.gameObject);
+        }
+    }
+
+    public void ShowImmediateChildren(GameObject parent)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            child.gameObject.SetActive(true);
+        }
+    }
+
+    public void HideImmediateChildren(GameObject parent)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            child.gameObject.SetActive(false);
         }
     }
 }

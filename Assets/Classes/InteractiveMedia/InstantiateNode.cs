@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class InstantiateNode : MonoBehaviour
 {
-    public GameObject BaseNode;
-    // public GameObject SquareNodeReference;
+    public GameObject BaseNode;   
     public GameObject CircleNodeReference;
     public GameObject Canvas;
 
@@ -30,18 +29,9 @@ public class InstantiateNode : MonoBehaviour
     }
 
     public void InstantiateNewHighlight(bool isSquare)
-    {
-        if (isSquare)
-        {
-            // GameObject instantiatedObject = Instantiate(SquareNodeReference, BaseNode.transform.position, Quaternion.identity, Canvas.transform);
-            // instantiatedObject.GetComponent<UnityQINode>().Register(-1);
-            // instantiatedObject.SetActive(true);
-        }
-        else
-        {
+    {            
             GameObject instantiatedObject = Instantiate(CircleNodeReference, BaseNode.transform.position, Quaternion.identity, Canvas.transform);
             instantiatedObject.GetComponent<UnityQINode>().Register(-1);
-            instantiatedObject.SetActive(true);
-        }
+            instantiatedObject.SetActive(true);        
     }
 }
