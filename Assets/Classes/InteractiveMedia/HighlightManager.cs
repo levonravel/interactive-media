@@ -143,6 +143,7 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
         isSelected = false;
         ToggleModifiers(false);
         ToggleEditMode(false);
+        HideChildren(AddContentButton);
         highlightImage.color = DeselectedColor;       
     }
 
@@ -163,5 +164,26 @@ public class HighlightManager : MonoBehaviour, IDragHandler, IPointerDownHandler
     public void DeleteHighlight()
     {        
         Destroy(this.gameObject);        
+    }
+
+    public void ShowChildren(GameObject parent)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            child.gameObject.SetActive(true);
+            // Recursive call if the child has its own children
+            ShowChildren(child.gameObject);
+        }
+    }
+
+    public void HideChildren(GameObject parent)
+    {
+        // Combine with above function and add a bool toggle..?
+        foreach (Transform child in parent.transform)
+        {
+            child.gameObject.SetActive(false);
+            // Recursive call if the child has its own children
+            HideChildren(child.gameObject);
+        }
     }
 }
