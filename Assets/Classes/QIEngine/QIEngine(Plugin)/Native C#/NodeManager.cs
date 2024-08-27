@@ -1,6 +1,7 @@
 using QuantumInterface.QIEngine;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -190,6 +191,7 @@ public class NodeManager
     public void UpdateNodePosition(int id, Vector3 position)
     {
         Collection[id].Configuration.Position = new System.Numerics.Vector2(position.X, position.Y);
+        UnityEngine.Debug.Log($"Node Position: {position}");
     }
 
     public void UpdateNodeRotation(int id, Quaternion rotation)
@@ -243,12 +245,18 @@ public class NodeManager
      */
     public void SetConfidenceUpdates(int id, bool shouldCalculate)
     {
-        Node node = Collection[id];
-        node.ShouldCalculateConfidence = shouldCalculate;
-        if (shouldCalculate) return;
-        SelectionManager.TryDeselect(node);
-        node.Confidence = 0;
-        node.Notifications.OnConfidenceChanged?.Invoke(node.Confidence);
+        try
+        {
+            Node node = Collection[id];
+            node.ShouldCalculateConfidence = shouldCalculate;
+            if (shouldCalculate) return;
+            SelectionManager.TryDeselect(node);
+            node.Confidence = 0;
+            node.Notifications.OnConfidenceChanged?.Invoke(node.Confidence);
+        }catch (Exception ex)
+        {
+
+        }
     }
 
     /**
@@ -269,6 +277,11 @@ public class NodeManager
         SelectionManager.ForceDeselection();
     }
 
+    public int GetCurrentSelection()
+    {
+        if (SelectionManager.CurrentSelection == null) return -1;
+        return SelectionManager.CurrentSelection.Id;
+    }
     /**
      * @brief Forces the selection of a node, regardless of any condition.
      * @param id The id of the node to select.
@@ -291,22 +304,22 @@ public class NodeManager
 
     public void UpdateConfidence(float screenPosX, float screenPosY, float worldPosX, float worldPosY)//we do not have head rotation world rotation
     {
-        if(!shouldRunEngineCalculations) return;
-
-        System.Numerics.Vector2 inputPosition = new System.Numerics.Vector2(screenPosX, screenPosY);
+        if (!shouldRunEngineCalculations) return;
         
+        System.Numerics.Vector2 inputPosition = new System.Numerics.Vector2(screenPosX, screenPosY);
+
         if (!QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest().Equals(new Vector2(screenPosX, screenPosY)))
         {
             QIGlobalData.DuplicationFreeGazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
         }
-        
+
         QIGlobalData.GazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
 
-        for(int i = Collection.Count - 1; i >= 0; i--)
+        for (int i = Collection.Count - 1; i >= 0; i--)
         {
             var node = Collection[i];
             if (node == null) continue;
-            if (node.Id == -1 || !node.ShouldCalculateConfidence)  continue;
+            if (node.Id == -1 || !node.ShouldCalculateConfidence) continue;
 
             OnCalculateMetricData?.Invoke(node, inputPosition);
 
@@ -341,6 +354,12 @@ public class NodeManager
 
     public void ShouldRunCalculations(bool running)
     {
+        foreach (var node in Collection)
+        {
+            if (node == null) continue;
+            node.ShouldCalculateConfidence = running;
+            node.Confidence = 0;
+        }
         shouldRunEngineCalculations = running;
     }
 }

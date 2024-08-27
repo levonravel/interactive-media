@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class UnityQINode : MonoBehaviour
 {
@@ -202,8 +204,42 @@ public class UnityQINode : MonoBehaviour
 
     bool IsPositionVisible()
     {
-        Vector3 viewportPoint = QIEngineManager.Instance.Camera.WorldToScreenPoint(transform.position);
-        return viewportPoint.x >= 0 && viewportPoint.x <= 1 && viewportPoint.y >= 0 && viewportPoint.y <= 1 && viewportPoint.z > 0;
+        Vector3 viewportPoint = QIEngineManager.Instance.Camera.WorldToViewportPoint(position);
+        return viewportPoint.x >= 0 && viewportPoint.x <= 1 &&
+               viewportPoint.y >= 0 && viewportPoint.y <= 1 &&
+               viewportPoint.z > 0 && !IsPointBehindUI(viewportPoint);
+    }
+
+   bool IsPointBehindUI(Vector3 screenPosition)
+    {
+        // Get the EventSystem and GraphicRaycaster
+        EventSystem eventSystem = EventSystem.current;
+        if (eventSystem == null)
+        {
+            Debug.LogError("EventSystem not found.");
+            return false;
+        }
+
+        // Assuming there's only one Canvas with a GraphicRaycaster
+        GraphicRaycaster graphicRaycaster = FindObjectOfType<GraphicRaycaster>();
+        if (graphicRaycaster == null)
+        {
+            Debug.LogError("GraphicRaycaster not found.");
+            return false;
+        }
+
+        // Create a PointerEventData to simulate a pointer at the screen position
+        PointerEventData pointerEventData = new PointerEventData(eventSystem)
+        {
+            position = screenPosition
+        };
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+
+        // Perform the raycast
+        graphicRaycaster.Raycast(pointerEventData, raycastResults);
+
+        // If any UI elements are hit, return true
+        return raycastResults.Count > 0;
     }
 
     public void OnEnable()

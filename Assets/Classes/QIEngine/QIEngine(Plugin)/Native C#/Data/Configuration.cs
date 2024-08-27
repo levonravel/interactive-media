@@ -26,6 +26,12 @@ public class Configuration
         {            
             if (value == position) return;
 
+            UnityEngine.Debug.Log($"Changing internal value: {value}");
+
+            if (position == Vector2.Zero)
+            {
+                UnityEngine.Debug.Log("Is Now ZERO");
+            }
             if (sampleCount++ == 6)
             {
                 sampleCount = 0;

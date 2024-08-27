@@ -69,6 +69,11 @@ namespace QuantumInterface.QIEngine
             NodeManager.ForceSelection(id);
         }
 
+        public static int GetCurrentSelection()
+        {           
+            return NodeManager.GetCurrentSelection();
+        }
+
         public static void ForceDeselection()
         {
             NodeManager.ForceDeselection();
