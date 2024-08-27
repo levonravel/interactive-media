@@ -96,6 +96,7 @@
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Interfaces\ILogic.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Metrics\DirectionMetric.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Managers\StateHandler.cs" />
+    <Compile Include="Assets\Classes\InteractiveMedia\ViewContent.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\Interactions\ScrollNode.cs" />
     <Compile Include="Assets\Classes\QIEngine\QIEngine(Plugin)\Native C#\Utilities\Vector2Extensions.cs" />
     <Compile Include="Assets\Classes\QIEngine\UnityQIEngine\Interactions\MoveNode.cs" />
@@ -1089,12 +1090,12 @@
       <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.Timeline.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Unity.VisualScripting.Shared.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Shared.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Timeline.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.SpatialTracking">

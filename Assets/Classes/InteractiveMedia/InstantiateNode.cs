@@ -8,6 +8,7 @@ public class InstantiateNode : MonoBehaviour
     public GameObject BaseNode;   
     public GameObject CircleNodeReference;
     public GameObject Canvas;
+    public GameObject NewNodeParent;
 
     void Update()
     {
@@ -30,7 +31,7 @@ public class InstantiateNode : MonoBehaviour
 
     public void InstantiateNewHighlight(bool isSquare)
     {            
-            GameObject instantiatedObject = Instantiate(CircleNodeReference, BaseNode.transform.position, Quaternion.identity, Canvas.transform);
+            GameObject instantiatedObject = Instantiate(CircleNodeReference, BaseNode.transform.position, Quaternion.identity, NewNodeParent.transform);
             instantiatedObject.GetComponent<UnityQINode>().Register(-1);
             instantiatedObject.SetActive(true);        
     }

@@ -9,7 +9,8 @@ public class CameraController : MonoBehaviour
     public GameObject ContentNodeReference;
     public GameObject HighlightReference;
     public GameObject HighlightContent;
-    public Canvas Canvas;    
+    public Canvas Canvas;
+    public GameObject FullscreenImage;
 
     private void Start()
     {
@@ -73,5 +74,5 @@ public class CameraController : MonoBehaviour
         RawImage img = (RawImage)contentNode.GetComponent<RawImage>();
         img.texture = _texture;
         contentNode.SetActive(true);
-    }
+    }   
 }
