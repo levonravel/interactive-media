@@ -191,7 +191,6 @@ public class NodeManager
     public void UpdateNodePosition(int id, Vector3 position)
     {
         Collection[id].Configuration.Position = new System.Numerics.Vector2(position.X, position.Y);
-        UnityEngine.Debug.Log($"Node Position: {position}");
     }
 
     public void UpdateNodeRotation(int id, Quaternion rotation)

@@ -19,7 +19,6 @@ public class Node
     */
     public bool IsSelectable()
     {
-        UnityEngine.Debug.Log($"Node Confidence: {Confidence}");
         return Confidence >= Configuration.SelectionThreshold;
     }
 

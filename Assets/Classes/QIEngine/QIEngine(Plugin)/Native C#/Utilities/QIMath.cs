@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 
@@ -16,8 +17,15 @@ public static class QIMath
             distance -= node.Configuration.Radius;
             if (node.Parent != null)
             {
-                maxDistance = Vector2.Distance(node.Configuration.Position, node.Parent.Configuration.Position);
-                return distance == 0 ? 1 : Math.Exp(-distance / (maxDistance - node.Configuration.Radius));
+                var nodeOffsetRadius = node.Configuration.Radius;
+                var parentOffsetRadius = node.Parent.Configuration.Radius;
+
+                maxDistance = Vector2.Distance(node.Parent.Configuration.Position, node.Configuration.Position);
+                var maxOffsetDistance = maxDistance - nodeOffsetRadius - parentOffsetRadius;
+
+                distance = Vector2.Distance(node.Configuration.Position, inputPosition) - nodeOffsetRadius;
+                var expDistance = 1 - (distance / maxOffsetDistance); //200, 90
+                return expDistance;
             }
             else
             {
