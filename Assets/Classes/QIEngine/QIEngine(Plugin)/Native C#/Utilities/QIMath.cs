@@ -24,12 +24,11 @@ public static class QIMath
                 var maxOffsetDistance = maxDistance - nodeOffsetRadius - parentOffsetRadius;
 
                 distance = Vector2.Distance(node.Configuration.Position, inputPosition) - nodeOffsetRadius;
-                var expDistance = 1 - (distance * distance / maxOffsetDistance); //200, 90
+                var expDistance = 1 - (distance / maxOffsetDistance); //200, 90
                 return expDistance;
             }
             else
             {
-                UnityEngine.Debug.Log($"Distance {distance} MaxDistance {maxDistance}");
                 return  1 - (distance / maxDistance);
             }
         }

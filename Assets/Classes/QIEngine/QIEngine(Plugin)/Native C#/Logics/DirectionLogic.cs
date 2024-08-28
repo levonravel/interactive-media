@@ -2,113 +2,94 @@ using QuantumInterface.QIEngine;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+
 public class DirectionLogic : ILogic
 {
-
-    /**
- * @brief Sets the confidence of the node it was called on.
- *
- * CalculateConfidence adds a value to the node's confidence based on the latest value in the angle difference metrics for
- * the node. If this value is zero, then the weight parameter is added instead.
- * @param node The node that confidence is being updated for.
- * @param weight The node's confidence weight.
- * @param isStateRunner Whether or not this confidence logic is the final decider in the confidence
- * calculation
- */
-    private float coneAngle = 45;
-
+    private const float DefaultConeAngle = 45f;
     public float Weight { get; set; }
+    private float coneAngle;
+
+    public DirectionLogic(float coneAngle = DefaultConeAngle)
+    {
+        this.coneAngle = coneAngle;
+    }
 
     public double Calculate(Node node)
     {
-        Vector2 first = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest();
-        Vector2 last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
-        Vector2 center = node.Configuration.Position;
+        var first = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest();
+        var last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
+        var center = node.Configuration.Position;
 
-        Vector2 direction = (first - last).Normalize();
-        float angleToCircle = Vector2Extensions.Angle(direction, (center - first).Normalize());
+        var direction = Vector2.Normalize(first - last);
+        float angleToCircle = Vector2Extensions.Angle(direction, Vector2.Normalize(center - first));
 
         if (angleToCircle > coneAngle / 2)
         {
-            node.Confidence = 0f; // Circle is outside the cone angle
+            node.Confidence = 0f;
+            return 0; // Return early if the angle is outside the cone.
         }
 
         float distanceToCircle = Vector2.Distance(first, center);
         double intersectionArea = CalculateCircleSegmentArea(distanceToCircle, node.Configuration.Radius, coneAngle);
-        double maxCircleArea = Math.PI * node.Configuration.Radius * node.Configuration.Radius;
+        double maxCircleArea = Math.PI * Math.Pow(node.Configuration.Radius, 2);
 
-        return (float)Math.Min(1, intersectionArea / maxCircleArea);
-        
+        UnityEngine.Debug.Log($"Cone Angle: {Math.Min(1, intersectionArea / maxCircleArea)}");
+        return Math.Min(1, intersectionArea / maxCircleArea);
     }
 
-    public static double CalculateCircleSegmentArea(float distance, float radius, float angle)
+    private static double CalculateCircleSegmentArea(float distance, float radius, float angle)
     {
+        if (distance >= radius) return 0; // If the distance is beyond the circle, the area is zero.
+
         double theta = 2 * Math.Acos(distance / radius);
-        double segmentArea = 0.5f * radius * radius * (theta - Math.Sin(theta));
-        double coneSectorArea = 0.5f * angle * (distance * distance);
+        double segmentArea = 0.5 * radius * radius * (theta - Math.Sin(theta));
+        double coneSectorArea = 0.5 * angle * Math.Pow(distance, 2);
 
         return Math.Min(segmentArea, coneSectorArea);
     }
 
-    static double CalculateSquare2DOffset(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
+    private static double CalculateSquare2DOffset(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
     {
-        // Calculate the relative position of the gaze from the center of the rectangle
         Vector2 relativePos = gazePos - squareCenter;
 
-        Vector2 topEdgeDir = Vector2.Normalize(new Vector2(0, dimensions.Y / 2.0f + squareCenter.Y) - gazePos);
-        Vector2 bottomEdgeDir = Vector2.Normalize(new Vector2(0, -dimensions.Y / 2.0f + squareCenter.Y) - gazePos);
-        Vector2 leftEdgeDir = Vector2.Normalize(new Vector2(-dimensions.X / 2.0f + squareCenter.X, 0) - gazePos);
-        Vector2 rightEdgeDir = Vector2.Normalize(new Vector2(dimensions.X / 2.0f + squareCenter.X, 0) - gazePos);
+        double minAngle = GetMinimumAngleToEdges(squareCenter, gazePos, dimensions);
+        double distanceToNearestEdge = (minAngle == GetAngleToEdge(squareCenter, gazePos, new Vector2(0, dimensions.Y / 2.0f)) ||
+                                        minAngle == GetAngleToEdge(squareCenter, gazePos, new Vector2(0, -dimensions.Y / 2.0f))) ?
+                                        dimensions.Y / 2.0f : dimensions.X / 2.0f;
 
-        double topAngle = Math.Acos(Vector2.Dot(topEdgeDir, Vector2.Normalize(relativePos)));
-        double bottomAngle = Math.Acos(Vector2.Dot(bottomEdgeDir, Vector2.Normalize(relativePos)));
-        double leftAngle = Math.Acos(Vector2.Dot(leftEdgeDir, Vector2.Normalize(relativePos)));
-        double rightAngle = Math.Acos(Vector2.Dot(rightEdgeDir, Vector2.Normalize(relativePos)));
-
-        double minAngle = Math.Min(Math.Min(topAngle, bottomAngle), Math.Min(leftAngle, rightAngle));
-        double distanceToNearestEdge;
-
-        if (minAngle == topAngle || minAngle == bottomAngle)
-        {
-            distanceToNearestEdge = dimensions.Y / 2.0f;
-        }
-        else
-        {
-            distanceToNearestEdge = dimensions.X / 2.0f;
-        }
-
-        double distanceToCenter = relativePos.Magnitude();
-        double offset = Math.Atan(distanceToNearestEdge / distanceToCenter);
-
-        return offset;
+        double distanceToCenter = relativePos.Length();
+        return Math.Atan(distanceToNearestEdge / distanceToCenter);
     }
 
-    //we need to also check if were inside the bounds if so we need to return true even though we might not be looking at it we need to ensure
-    //that this is 1.
-    static bool IsGazeInsideSquare2D(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
+    private static double GetMinimumAngleToEdges(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
     {
-        // Calculate the half dimensions of the rectangle
+        double topAngle = GetAngleToEdge(squareCenter, gazePos, new Vector2(0, dimensions.Y / 2.0f));
+        double bottomAngle = GetAngleToEdge(squareCenter, gazePos, new Vector2(0, -dimensions.Y / 2.0f));
+        double leftAngle = GetAngleToEdge(squareCenter, gazePos, new Vector2(-dimensions.X / 2.0f, 0));
+        double rightAngle = GetAngleToEdge(squareCenter, gazePos, new Vector2(dimensions.X / 2.0f, 0));
+
+        return Math.Min(Math.Min(topAngle, bottomAngle), Math.Min(leftAngle, rightAngle));
+    }
+
+    private static double GetAngleToEdge(Vector2 squareCenter, Vector2 gazePos, Vector2 edgePoint)
+    {
+        Vector2 edgeDir = Vector2.Normalize(edgePoint - gazePos);
+        Vector2 relativePos = gazePos - squareCenter;
+        return Math.Acos(Vector2.Dot(edgeDir, Vector2.Normalize(relativePos)));
+    }
+
+    private static bool IsGazeInsideSquare2D(Vector2 squareCenter, Vector2 gazePos, Vector3 dimensions)
+    {
         double halfWidth = dimensions.X / 2.0f;
         double halfHeight = dimensions.Y / 2.0f;
 
-        // Calculate the boundaries of the rectangle
-        double leftBoundary = squareCenter.X - halfWidth;
-        double rightBoundary = squareCenter.X + halfWidth;
-        double topBoundary = squareCenter.Y + halfHeight;
-        double bottomBoundary = squareCenter.Y - halfHeight;
-
-        // Check if gazePos is inside the rectangle
-        if (gazePos.X > leftBoundary && gazePos.X < rightBoundary && gazePos.Y > bottomBoundary && gazePos.Y < topBoundary)
-        {
-            return true; // inside the rectangle
-        }
-        return false; // outside the rectangle
+        return (gazePos.X > squareCenter.X - halfWidth && gazePos.X < squareCenter.X + halfWidth &&
+                gazePos.Y > squareCenter.Y - halfHeight && gazePos.Y < squareCenter.Y + halfHeight);
     }
 
-    static bool IsInRadius(Vector2 nodePosition, Vector2 inputPosition, float radius)
+    private static bool IsInRadius(Vector2 nodePosition, Vector2 inputPosition, float radius)
     {
-        double distanceSquared = (inputPosition.X - nodePosition.X) * (inputPosition.X - nodePosition.X) +
-            (inputPosition.Y - nodePosition.Y) * (inputPosition.Y - nodePosition.Y);
+        double distanceSquared = Vector2.DistanceSquared(nodePosition, inputPosition);
         return distanceSquared <= radius * radius;
     }
 }
