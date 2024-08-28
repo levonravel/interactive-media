@@ -2,20 +2,12 @@ using QuantumInterface.QIEngine;
 
 public class DistanceLogic : ILogic
 {
-    public CalcType CalcType => CalcType.Distance;
+    public float Weight { get; set; }
 
-    public void Calculate(Node node, float weight, bool isStateRunner)
+    public double Calculate(Node node)
     {
-        if (!node.ShouldCalculateConfidence) return;
+        if (!node.ShouldCalculateConfidence) return 0.0;
 
-        //TODO Increment more proportionally -Levon "Ask at next meeting for ideas"
-        double distance = node.Metrics.Distance.GetNewest() * weight;
-
-        node.Confidence += distance >= weight ? weight : distance;
-
-        if (isStateRunner)
-        {
-            StateHandler.SwitchState(node);
-        }
+        return node.Metrics.Distance.GetNewest();
     }
 }

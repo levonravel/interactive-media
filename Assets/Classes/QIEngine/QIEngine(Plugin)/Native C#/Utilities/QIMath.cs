@@ -9,28 +9,28 @@ public static class QIMath
 {
     public static double GetDistanceFromBounds(Node node, Vector2 inputPosition)
     {
-        float distance = Vector2.Distance(node.Configuration.Position, inputPosition);
-        float maxDistance = node.Configuration.StartConfidenceDistance == 0 ? 1080 : node.Configuration.StartConfidenceDistance;
+        double distance = Vector2.Distance(node.Configuration.Position, inputPosition);
+        float maxDistance = Vector2.Distance(node.Configuration.Position, QIGlobalData.LatestDuplicatePosition);
 
         if (node.Configuration.Radius > 0)
         {
-            distance -= node.Configuration.Radius;
+            distance -= node.Configuration.Radius < distance ? node.Configuration.Radius : distance;
             if (node.Parent != null)
             {
-                var nodeOffsetRadius = node.Configuration.Radius;
-                var parentOffsetRadius = node.Parent.Configuration.Radius;
+                var nodeOffsetRadius = node.Configuration.Radius / 2;
+                var parentOffsetRadius = node.Parent.Configuration.Radius / 2;
 
                 maxDistance = Vector2.Distance(node.Parent.Configuration.Position, node.Configuration.Position);
                 var maxOffsetDistance = maxDistance - nodeOffsetRadius - parentOffsetRadius;
 
                 distance = Vector2.Distance(node.Configuration.Position, inputPosition) - nodeOffsetRadius;
-                var expDistance = 1 - (distance / maxOffsetDistance); //200, 90
+                var expDistance = 1 - (distance * distance / maxOffsetDistance); //200, 90
                 return expDistance;
             }
             else
             {
-                if (distance > maxDistance) return 0;
-                return distance == 0 ? 1 : Math.Exp(-distance / maxDistance);
+                UnityEngine.Debug.Log($"Distance {distance} MaxDistance {maxDistance}");
+                return  1 - (distance / maxDistance);
             }
         }
  

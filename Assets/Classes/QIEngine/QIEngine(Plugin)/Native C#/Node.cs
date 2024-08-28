@@ -8,7 +8,7 @@ public class Node
     public Configuration Configuration = new Configuration();
     public Notification Notifications = new Notification();
     public Node Parent;
-    public List<CalcContainer> LogicCalculations = new List<CalcContainer>();
+    public List<ILogic> LogicCalculations = new List<ILogic>();
     public List<Node> Children = new List<Node>();
     public double Confidence;
     public bool ShouldCalculateConfidence;

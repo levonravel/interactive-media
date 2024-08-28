@@ -18,12 +18,12 @@ namespace QuantumInterface.QIEngine
             NodeManager.RemoveNode(id);
         }
 
-        public static void AssignConfidenceLogic(int id, int calcType, float weight, bool isLogicFinalizer)
+        public static void AssignConfidenceLogic(int id, int calcType, float weight)
         {
-            NodeManager.AssignConfidenceLogic(id, (CalcType)calcType, weight, isLogicFinalizer);
+            NodeManager.AssignConfidenceLogic(id, calcType, weight);
         }
 
-        public static void AdjustNodeConfig(int id, int calcType, float weight, bool isLogicFinalizer)
+        public static void AdjustNodeConfig(int id, int calcType, float weight)
         {
             //not implemented
         }

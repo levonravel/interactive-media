@@ -5,6 +5,6 @@ using UnityEngine;
 
 public interface ILogic
 {
-    public CalcType CalcType { get; }
-    public void Calculate(Node node, float weight, bool isStateRunner) { }
+    public float Weight { get; set; }
+    public double Calculate(Node node);
 }

@@ -114,11 +114,11 @@ public class UnityQINode : MonoBehaviour
         {
             if (i == LogicTypes.Count - 1)
             {
-                QIEngineInterpreter.AssignConfidenceLogic(id, (int)LogicTypes[i].CalculationType, LogicTypes[i].Weight, true);
+                QIEngineInterpreter.AssignConfidenceLogic(id, (int)LogicTypes[i].CalculationType, LogicTypes[i].Weight);
             }
             else
             {
-                QIEngineInterpreter.AssignConfidenceLogic(id, (int)LogicTypes[i].CalculationType, LogicTypes[i].Weight, false);
+                QIEngineInterpreter.AssignConfidenceLogic(id, (int)LogicTypes[i].CalculationType, LogicTypes[i].Weight);
             }
         }
     }

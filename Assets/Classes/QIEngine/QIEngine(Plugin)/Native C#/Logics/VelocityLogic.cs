@@ -2,18 +2,13 @@ using QuantumInterface.QIEngine;
 
 public class VelocityLogic : ILogic
 {
-    public CalcType CalcType => CalcType.Velocity;
+    public float Weight { get; set; }
 
-    public void Calculate(Node node, float weight, bool isStateRunner)
+    public double Calculate(Node node)
     {
-        if (!node.ShouldCalculateConfidence) return;
+        if (!node.ShouldCalculateConfidence) return 0.0;
 
         double velocity = node.Metrics.Velocity.GetNewest();
-        node.Confidence *= velocity * weight;
-
-        if (isStateRunner)
-        {
-            StateHandler.SwitchState(node);
-        }
+        return velocity;
     }
 }

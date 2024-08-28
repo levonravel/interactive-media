@@ -17,9 +17,9 @@ public class GazeDirectionLogic : ILogic
  */
     private float elevenDegrees = 0.191986f;
 
-    public CalcType CalcType => CalcType.InversedDirection;
+    public float Weight { get; set; }
 
-    public void Calculate(Node node, float weight, bool isStateRunner)
+    public double Calculate(Node node)
     {
         Vector2 currentPosition = node.Configuration.Position;
         Vector2 lastPosition = node.Configuration.LastPosition;
@@ -52,20 +52,15 @@ public class GazeDirectionLogic : ILogic
 
         if (IsGazeInsideSquare2D(node.Configuration.Position, currentPosition - inputPosition, node.Configuration.Dimensions) && node.Configuration.Radius == 0)
         {
-            node.Confidence = 1;
+            return 1;
         }
         else if (node.Configuration.Radius > 0 && IsInRadius(inputPosition, currentPosition, node.Configuration.Radius))
         {
-            node.Confidence = 1;
+            return 1;
         }
         else
         {
-            node.Confidence += (direction >= weight ? weight : direction);// * (lookingAt ? 1 : 0);            
-        }
-
-        if (isStateRunner)
-        {
-            StateHandler.SwitchState(node);
+            return direction;    
         }
     }
 

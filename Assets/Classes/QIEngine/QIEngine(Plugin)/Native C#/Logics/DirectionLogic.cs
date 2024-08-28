@@ -16,10 +16,10 @@ public class DirectionLogic : ILogic
  * calculation
  */
     private float coneAngle = 45;
-    private float coneLength = 5f;
-    public CalcType CalcType => CalcType.Direction;
 
-    public void Calculate(Node node, float weight, bool isStateRunner)
+    public float Weight { get; set; }
+
+    public double Calculate(Node node)
     {
         Vector2 first = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest();
         Vector2 last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
@@ -37,27 +37,7 @@ public class DirectionLogic : ILogic
         double intersectionArea = CalculateCircleSegmentArea(distanceToCircle, node.Configuration.Radius, coneAngle);
         double maxCircleArea = Math.PI * node.Configuration.Radius * node.Configuration.Radius;
 
-        node.Confidence = (float)Math.Min(1, intersectionArea / maxCircleArea);
-
-        /*
-        if (IsGazeInsideSquare2D(node.Configuration.Position, first, node.Configuration.Dimensions) && node.Configuration.Radius == 0)
-        {
-            node.Confidence = 1;
-        }
-        else if (node.Configuration.Radius > 0 && IsInRadius(node.Configuration.Position, first, node.Configuration.Radius))
-        {
-            node.Confidence = 1;
-        }
-        else
-        {
-            //node.Confidence += (direction >= weight ? weight : direction) * (lookingAt ? 1 : 0);
-        }
-        */
-
-        if (isStateRunner)
-        {
-            StateHandler.SwitchState(node);
-        }
+        return (float)Math.Min(1, intersectionArea / maxCircleArea);
         
     }
 

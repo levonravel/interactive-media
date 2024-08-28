@@ -8,10 +8,25 @@ using System.Reflection;
 
 public class NodeManager
 {
-    Dictionary<CalcType, Action<Node, float, bool>> logicMapper = new Dictionary<CalcType, Action<Node, float, bool>>();
+    List<ILogic> logicMapper = new List<ILogic>()
+    {
+        new DistanceLogic(),
+        new DirectionLogic(),
+        new VelocityLogic(),
+    };
+
+    List<IMetric> metricMapper = new List<IMetric>()
+    {
+        new DistanceMetric(),
+        new DirectionMetric(),
+        new VelocityMetric(),
+    };
+
     List<Node> Collection = new List<Node>();
     Queue<int> ReusableIds = new Queue<int>();
-    Action<Node, System.Numerics.Vector2> OnCalculateMetricData;
+    Action<Node, Vector2> OnCalculateMetricData;
+    ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
+
     bool shouldRunEngineCalculations = true;
 
     public void ResetEngine()
@@ -23,30 +38,9 @@ public class NodeManager
 
     public NodeManager()
     {
-        Type iMetric = typeof(IMetric);
-
-        Type[] metricClasses = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(t => iMetric.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-            .ToArray();
-
-        for (int i = 0; i < metricClasses.Length; i++)
+        foreach(var metric in metricMapper)
         {
-            OnCalculateMetricData += (Activator.CreateInstance(metricClasses[i]) as IMetric).Calculate;
-        }
-
-        //Populate the logicMapper
-        Type iLogic = typeof(ILogic);
-
-        Type[] logicClasses = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(t => iLogic.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-            .ToArray();
-
-        for (int i = 0; i < logicClasses.Length; i++)
-        {
-            var logicClass = Activator.CreateInstance(logicClasses[i]) as ILogic;
-            logicMapper.Add(logicClass.CalcType, logicClass.Calculate);
+            OnCalculateMetricData += metric.Calculate;
         }
     }
 
@@ -103,9 +97,22 @@ public class NodeManager
      * @param isLogicFinalizer Whether or not this confidence logic is the final decider in the confidence
      * calculation
      */
-    public void AssignConfidenceLogic(int id, CalcType type, float weight, bool isLogicFinalizer)
+    public void AssignConfidenceLogic(int id, int type, float weight)
     {
-        Collection[id].LogicCalculations.Add(new CalcContainer(weight, type, isLogicFinalizer));
+        var logicClass = CreateLogicInstance(type);
+        logicClass.Weight = weight;
+        Collection[id].LogicCalculations.Add(logicClass);
+    }
+
+    public ILogic CreateLogicInstance(int type)
+    {
+        switch (type)
+        {
+            case 0: return new DistanceLogic();
+            case 1: return new DirectionLogic();
+            case 2: return new VelocityLogic();
+            default: throw new ArgumentOutOfRangeException(nameof(type), "Invalid type index.");
+        }
     }
 
     /**
@@ -311,6 +318,10 @@ public class NodeManager
         {
             QIGlobalData.DuplicationFreeGazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
         }
+        else
+        {
+            QIGlobalData.LatestDuplicatePosition = new Vector2(screenPosX, screenPosY);
+        }
 
         QIGlobalData.GazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
 
@@ -328,13 +339,7 @@ public class NodeManager
             //check if this is a child to a root if so dont allow processing if the root isnt selected
             if (node.Parent != null && node.Parent.State != State.Selected) continue;
 
-            foreach (var calc in node.LogicCalculations)
-            {
-                logicMapper[calc.Type](node, calc.Weight, calc.IsLogicFinalizer);
-            }
-
-            //notify update
-            node.Notifications.OnQIEngineUpdate?.Invoke();
+            node.Confidence = confidenceCalculator.CalculateConfidence(node);
 
             if (double.IsNaN(node.Confidence))
             {
@@ -342,11 +347,15 @@ public class NodeManager
                 continue;
             }
 
-            //this might be greater than 1 sometimes. 
-            node.Confidence = Math.Clamp(node.Confidence, 0, 1);
-
             //notify the confidence change
             node.Notifications.OnConfidenceChanged?.Invoke(node.Confidence);
+
+            //notify update
+            node.Notifications.OnQIEngineUpdate?.Invoke();
+
+            //switch the state
+            StateHandler.SwitchState(node);
+
             node.Confidence = 0;
         }
     }
