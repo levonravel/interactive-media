@@ -24,11 +24,17 @@ public class DirectionMetric : IMetric
         double magAB = Math.Sqrt(AB.X * AB.X + AB.Y * AB.Y);
         double magAC = Math.Sqrt(AC.X * AC.X + AC.Y * AC.Y);
 
-        double angleRadians = Math.Acos(dotProduct / (magAB * magAC));
+        double angleRadians = 0;
+        if (magAB > 0 && magAC > 0)
+        {
+            double cosTheta = dotProduct / (magAB * magAC);
+            cosTheta = Math.Clamp(cosTheta, -1.0, 1.0); // Clamp to valid range for Acos
+            angleRadians = Math.Acos(cosTheta);
+        }
 
-        double normalizedAngle = angleRadians / 3.14159265358979323846;
+        double normalizedAngle = angleRadians / Math.PI;
 
-        double mag = 1 / (1 + Vector2.Distance(last, first));
+        double mag = Math.Clamp(1 / (1 + Vector2.Distance(last, first)), 0.0, 1.0);
 
         return new ConfidenceLine()
         {
@@ -36,4 +42,4 @@ public class DirectionMetric : IMetric
             Mag = mag
         };
     }
-};
+}

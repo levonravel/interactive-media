@@ -1,48 +1,27 @@
-using System;
+﻿using System;
 using System.Numerics;
 
 public class DirectionLogic : ILogic
 {
-    private const float DefaultConeAngle = 45f;
+    private const float DefaultConeAngle = 22f;
     public float Weight { get; set; }
-    private float coneAngle;
-
-    public DirectionLogic(float coneAngle = DefaultConeAngle)
-    {
-        this.coneAngle = coneAngle;
-    }
+    private float coneAngleDegrees = 11;
 
     public double Calculate(Node node)
     {
-        // Get the newest and 4th newest positions to determine the movement direction
         var first = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest();
         var last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
-
-        // The position of the object of interest
         var objectPosition = node.Configuration.Position;
-
-        // Calculate the direction vector and normalize it (input movement direction)
         var direction = Vector2.Normalize(first - last);
-
-        // Calculate the dynamic cone center direction vector from the input position to the object and normalize it
         var coneCenterDirection = Vector2.Normalize(objectPosition - first);
-
-        // Calculate the dot product between the dynamic cone center and the movement direction
         double dotProduct = Vector2.Dot(coneCenterDirection, direction);
 
-        // Clamp the dot product to the valid range for Acos
         dotProduct = Math.Clamp(dotProduct, -1.0, 1.0);
 
-        // The angle is derived from the arccosine of the dot product
         var angleRadians = Math.Acos(dotProduct);
-
-        // Convert the angle to a range between 0 and 1
-        var coneAngleRange = Math.PI / 4; // Assume a 45-degree cone for this example
-
-        // Normalize the confidence score: 1 means aligned (moving towards the object), 0 means at the edge
+        var coneAngleRange = coneAngleDegrees * (Math.PI / 180);
         var confidence = Math.Clamp(1 - (angleRadians / coneAngleRange), 0.0, 1.0);
 
-        UnityEngine.Debug.Log($"Direction: {confidence}");
         return confidence;
     }
 

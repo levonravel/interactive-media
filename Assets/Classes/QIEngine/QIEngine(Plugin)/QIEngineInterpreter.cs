@@ -141,5 +141,6 @@ namespace QuantumInterface.QIEngine
         Distance,
         Direction,
         Velocity,
+        Dampening,
     };
 }

@@ -8,25 +8,10 @@ using System.Reflection;
 
 public class NodeManager
 {
-    List<ILogic> logicMapper = new List<ILogic>()
-    {
-        new DistanceLogic(),
-        new DirectionLogic(),
-        new VelocityLogic(),
-    };
-
-    List<IMetric> metricMapper = new List<IMetric>()
-    {
-        new DistanceMetric(),
-        new DirectionMetric(),
-        new VelocityMetric(),
-    };
-
     List<Node> Collection = new List<Node>();
     Queue<int> ReusableIds = new Queue<int>();
     Action<Node, Vector2> OnCalculateMetricData;
     ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
-
     bool shouldRunEngineCalculations = true;
 
     public void ResetEngine()
@@ -38,7 +23,7 @@ public class NodeManager
 
     public NodeManager()
     {
-        foreach(var metric in metricMapper)
+        foreach(var metric in LogicMetricGlobalSetup.MetricMapper)
         {
             OnCalculateMetricData += metric.Calculate;
         }
@@ -99,20 +84,8 @@ public class NodeManager
      */
     public void AssignConfidenceLogic(int id, int type, float weight)
     {
-        var logicClass = CreateLogicInstance(type);
-        logicClass.Weight = weight;
+        var logicClass = LogicMetricGlobalSetup.CreateLogicInstance(type, weight);
         Collection[id].LogicCalculations.Add(logicClass);
-    }
-
-    public ILogic CreateLogicInstance(int type)
-    {
-        switch (type)
-        {
-            case 0: return new DistanceLogic();
-            case 1: return new DirectionLogic();
-            case 2: return new VelocityLogic();
-            default: throw new ArgumentOutOfRangeException(nameof(type), "Invalid type index.");
-        }
     }
 
     /**
@@ -341,12 +314,6 @@ public class NodeManager
 
             node.Confidence = confidenceCalculator.CalculateConfidence(node);
 
-            if (double.IsNaN(node.Confidence))
-            {
-                node.Confidence = 0;
-                continue;
-            }
-
             //notify the confidence change
             node.Notifications.OnConfidenceChanged?.Invoke(node.Confidence);
 
@@ -355,8 +322,6 @@ public class NodeManager
 
             //switch the state
             StateHandler.SwitchState(node);
-
-            node.Confidence = 0;
         }
     }
 

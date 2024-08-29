@@ -33,4 +33,5 @@ public static class QIGlobalData
             }            
         }
     }
+    public static double CombinedConfidence;
 }
