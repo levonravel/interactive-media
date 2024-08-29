@@ -139,9 +139,7 @@ namespace QuantumInterface.QIEngine
     public enum CalcType
     {
         Distance,
-        Velocity,
         Direction,
-        InversedDirection,
-        MagAnglePolyDistBias,
+        Velocity,
     };
 }

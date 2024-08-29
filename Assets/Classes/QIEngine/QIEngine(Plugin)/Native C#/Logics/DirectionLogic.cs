@@ -1,6 +1,4 @@
-using QuantumInterface.QIEngine;
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 
 public class DirectionLogic : ILogic
@@ -16,26 +14,39 @@ public class DirectionLogic : ILogic
 
     public double Calculate(Node node)
     {
+        // Get the newest and 4th newest positions to determine the movement direction
         var first = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest();
         var last = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest(4);
-        var center = node.Configuration.Position;
 
+        // The position of the object of interest
+        var objectPosition = node.Configuration.Position;
+
+        // Calculate the direction vector and normalize it (input movement direction)
         var direction = Vector2.Normalize(first - last);
-        float angleToCircle = Vector2Extensions.Angle(direction, Vector2.Normalize(center - first));
 
-        if (angleToCircle > coneAngle / 2)
-        {
-            node.Confidence = 0f;
-            return 0; // Return early if the angle is outside the cone.
-        }
+        // Calculate the dynamic cone center direction vector from the input position to the object and normalize it
+        var coneCenterDirection = Vector2.Normalize(objectPosition - first);
 
-        float distanceToCircle = Vector2.Distance(first, center);
-        double intersectionArea = CalculateCircleSegmentArea(distanceToCircle, node.Configuration.Radius, coneAngle);
-        double maxCircleArea = Math.PI * Math.Pow(node.Configuration.Radius, 2);
+        // Calculate the dot product between the dynamic cone center and the movement direction
+        double dotProduct = Vector2.Dot(coneCenterDirection, direction);
 
-        UnityEngine.Debug.Log($"Cone Angle: {Math.Min(1, intersectionArea / maxCircleArea)}");
-        return Math.Min(1, intersectionArea / maxCircleArea);
+        // Clamp the dot product to the valid range for Acos
+        dotProduct = Math.Clamp(dotProduct, -1.0, 1.0);
+
+        // The angle is derived from the arccosine of the dot product
+        var angleRadians = Math.Acos(dotProduct);
+
+        // Convert the angle to a range between 0 and 1
+        var coneAngleRange = Math.PI / 4; // Assume a 45-degree cone for this example
+
+        // Normalize the confidence score: 1 means aligned (moving towards the object), 0 means at the edge
+        var confidence = Math.Clamp(1 - (angleRadians / coneAngleRange), 0.0, 1.0);
+
+        UnityEngine.Debug.Log($"Direction: {confidence}");
+        return confidence;
     }
+
+
 
     private static double CalculateCircleSegmentArea(float distance, float radius, float angle)
     {
