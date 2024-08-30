@@ -10,7 +10,7 @@ public static class QIMath
     public static double GetDistanceFromBounds(Node node, Vector2 inputPosition)
     {
         double distance = Vector2.Distance(node.Configuration.Position, inputPosition);
-        float maxDistance = Vector2.Distance(node.Configuration.Position, QIGlobalData.LatestDuplicatePosition);
+        float maxDistance = Vector2.Distance(node.Configuration.Position, QIGlobalData.GazePositionSamples.GetOldest(60));
 
         if (node.Configuration.Radius > 0)
         {

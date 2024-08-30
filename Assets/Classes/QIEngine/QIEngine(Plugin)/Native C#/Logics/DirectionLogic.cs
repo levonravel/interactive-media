@@ -3,10 +3,9 @@ using System.Numerics;
 
 public class DirectionLogic : ILogic
 {
-    private const float DefaultConeAngle = 22f;
     public float Weight { get; set; }
-    private float coneAngleDegrees = 11;
-
+    private float coneAngleDegrees = 45;
+    
     public double Calculate(Node node)
     {
         var first = QIGlobalData.DuplicationFreeGazePositionSamples.GetNewest();
@@ -14,7 +13,7 @@ public class DirectionLogic : ILogic
         var objectPosition = node.Configuration.Position;
         var direction = Vector2.Normalize(first - last);
         var coneCenterDirection = Vector2.Normalize(objectPosition - first);
-        double dotProduct = Vector2.Dot(coneCenterDirection, direction);
+        double dotProduct = Vector2.Dot(coneCenterDirection, direction); // + K value peripheral vision "11 to 5 degrees"
 
         dotProduct = Math.Clamp(dotProduct, -1.0, 1.0);
 

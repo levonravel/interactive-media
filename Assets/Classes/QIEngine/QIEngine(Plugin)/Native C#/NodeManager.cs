@@ -291,10 +291,6 @@ public class NodeManager
         {
             QIGlobalData.DuplicationFreeGazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
         }
-        else
-        {
-            QIGlobalData.LatestDuplicatePosition = new Vector2(screenPosX, screenPosY);
-        }
 
         QIGlobalData.GazePositionSamples.Enqueue(new System.Numerics.Vector2(screenPosX, screenPosY));
 
